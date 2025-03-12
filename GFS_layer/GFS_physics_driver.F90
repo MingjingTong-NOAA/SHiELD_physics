@@ -505,7 +505,7 @@ module module_physics_driver
           smsoil, stsoil, slsoil
 
       real(kind=kind_phys), dimension(size(Grid%xlon,1),Model%levs) ::  &
-          del, rhc, dtdt, dudt, dvdt, gwdcu, gwdcv, dtdtc, rainp,       &
+          del, rhc, dtdt, dudt, dvdt, gwdcu, gwdcv, dtdtnp, rainp,      &
           ud_mf, dd_mf, dt_mf, prnum, dkt, flux_cg, flux_en, elm_pbl,   &
           prefluxw, prefluxr, prefluxi, prefluxs, prefluxg,             &
           sigmatot, sigmafrac, specific_heat, final_dynamics_delp, dtdt_gwdps, &
@@ -840,7 +840,7 @@ module module_physics_driver
       dudt(:,:)  = 0.
       dvdt(:,:)  = 0.
       dtdt(:,:)  = 0.
-      dtdtc(:,:) = 0.
+      dtdtnp(:,:) = 0.
       dqdt(:,:,:) = 0.
 
 !  --- ...  initialize dtdt with heating rate from dcyc2
@@ -880,9 +880,9 @@ module module_physics_driver
              Coupling%nirbmui, Coupling%nirdfui, Coupling%visbmui,          &
              Coupling%visdfui, Coupling%nirbmdi, Coupling%nirdfdi,          &
              Coupling%visbmdi, Coupling%visdfdi, ix, im, levs,              &
-             Model%daily_mean,                                              &
+             Model%daily_mean,Model%pert_radtend,                           &
 !  ---  input/output:
-             dtdt, dtdtc,                                                   &
+             dtdt, dtdtnp,                                                  &
 !  ---  outputs:
              adjsfcdsw, adjsfcnsw, adjsfcdlw, adjsfculw, xmu, xcosz,        &
              adjnirbmu, adjnirdfu, adjvisbmu, adjvisdfu,                    &
@@ -1978,7 +1978,7 @@ module module_physics_driver
 !       write(0,*) ' dusfc1=',dusfc1(ipr),' kdt=',kdt,' lat=',lat
 !       write(0,*)' dtsfc1=',dtsfc1(ipr)
 !       write(0,*)' dqsfc1=',dqsfc1(ipr)
-!       write(0,*)' dtdtc=',(dtdt(ipr,k),k=1,15)
+!       write(0,*)' dtdtnp=',(dtdt(ipr,k),k=1,15)
 !       write(0,*)' dqdtc=',(dqdt(ipr,k,1),k=1,15)
 !       print *,' dudtm=',dudt(ipr,:)
 !     endif
@@ -4005,7 +4005,7 @@ module module_physics_driver
 
       if (Model%do_sppt) then
         !--- radiation heating rate
-        Tbd%dtdtr(1:im,:) = Tbd%dtdtr(1:im,:) + dtdtc(1:im,:)*dtf
+        Tbd%dtdtr(1:im,:) = Tbd%dtdtr(1:im,:) + dtdtnp(1:im,:)*dtf
         do i = 1, im
           if (t850(i) > 273.16) then
              !--- change in change in rain precip
@@ -4354,7 +4354,7 @@ module module_physics_driver
      integer :: k, n
 
      ! Local variables that will get reused throughout the multi-call loop
-     real(kind=kind_phys), dimension(im,levs) :: dtdt, dtdtc
+     real(kind=kind_phys), dimension(im,levs) :: dtdt, dtdtnp
      real(kind=kind_phys), dimension(im) :: adjsfcdsw, adjsfcnsw, adjsfcdlw, &
         adjsfculw, adjnirbmu, adjnirdfu, adjvisbmu, adjvisdfu, adjnirbmd,    &
         adjnirdfd, adjvisbmd, adjvisdfd, xmu, xcosz
@@ -4373,8 +4373,9 @@ module module_physics_driver
              Coupling%visdfui_with_scaled_co2(n,:), Coupling%nirbmdi_with_scaled_co2(n,:),  &
              Coupling%nirdfdi_with_scaled_co2(n,:), Coupling%visbmdi_with_scaled_co2(n,:),  &
              Coupling%visdfdi_with_scaled_co2(n,:), ix, im, levs, Model%daily_mean,         &
+             Model%pert_radtend,                                                            &
     !  ---  input/output:
-             dtdt, dtdtc,                                                                   &
+             dtdt, dtdtnp,                                                                  &
     !  ---  outputs:
              adjsfcdsw, adjsfcnsw, adjsfcdlw, adjsfculw, xmu, xcosz, adjnirbmu, adjnirdfu,  &
              adjvisbmu, adjvisdfu, adjnirbmd, adjnirdfd, adjvisbmd,                         &

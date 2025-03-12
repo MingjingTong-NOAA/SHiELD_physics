@@ -20,9 +20,9 @@
 !            sfcdsw,sfcnsw,sfcdlw,swh,swhc,hlw,hlwc,                    !
 !            sfcnirbmu,sfcnirdfu,sfcvisbmu,sfcvisdfu,                   !
 !            sfcnirbmd,sfcnirdfd,sfcvisbmd,sfcvisdfd,                   !
-!            ix, im, levs,                                              !
+!            ix, im, levs,pert_radtend,                                 !
 !      input/output:                                                    !
-!            dtdt,dtdtc,                                                !
+!            dtdt,dtdtnp,                                               !
 !      outputs:                                                         !
 !            adjsfcdsw,adjsfcnsw,adjsfcdlw,adjsfculw,xmu,xcosz,         !
 !            adjnirbmu,adjnirdfu,adjvisbmu,adjvisdfu,                   !
@@ -90,11 +90,12 @@
 !     sfcvisdfd(im)- real, tot sky sfc uv+vis-diff sw dnward flux (w/m2)!
 !     ix, im       - integer, horiz. dimention and num of used points   !
 !     levs         - integer, vertical layer dimension                  !
+!     pert_radtend - clear-sky (true) or all-sky radiation heating rates!
 !                                                                       !
 !  input/output:                                                        !
 !     dtdt(im,levs)- real, model time step adjusted total radiation     !
 !                          heating rates ( k/s )                        !
-!     dtdtc(im,levs)- real, model time step adjusted clear sky radiation!
+!     dtdtnp(im,levs)- real, model time step adjusted radiation         !
 !                          heating rates ( k/s )                        !
 !                                                                       !
 !  outputs:                                                             !
@@ -124,9 +125,9 @@
      &       sfcdsw,sfcnsw,sfcdlw,swh,swhc,hlw,hlwc,                    &
      &       sfcnirbmu,sfcnirdfu,sfcvisbmu,sfcvisdfu,                   &
      &       sfcnirbmd,sfcnirdfd,sfcvisbmd,sfcvisdfd,                   &
-     &       ix, im, levs, daily_mean,                                  &
+     &       ix, im, levs, daily_mean, pert_radtend,                    &
 !  ---  input/output:
-     &       dtdt,dtdtc,                                                &
+     &       dtdt,dtdtnp,                                               &
 !  ---  outputs:
      &       adjsfcdsw,adjsfcnsw,adjsfcdlw,adjsfculw,xmu,xcosz,         &
      &       adjnirbmu,adjnirdfu,adjvisbmu,adjvisdfu,                   &
@@ -156,11 +157,11 @@
       real(kind=kind_phys), dimension(ix,levs), intent(in) :: swh,  hlw
      &,                                                       swhc, hlwc&
 
-      logical, intent(in) :: daily_mean
+      logical, intent(in) :: daily_mean, pert_radtend
 
 !  ---  input/output:
       real(kind=kind_phys), dimension(im,levs), intent(inout) :: dtdt   &
-     &,                                                          dtdtc
+     &,                                                          dtdtnp
 
 !  ---  outputs:
       real(kind=kind_phys), dimension(im), intent(out) ::               &
@@ -239,7 +240,13 @@
       do k = 1, levs
         do i = 1, im
           dtdt(i,k)  = dtdt(i,k)  + swh(i,k)*xmu(i)  + hlw(i,k)
-          dtdtc(i,k) = dtdtc(i,k) + swhc(i,k)*xmu(i) + hlwc(i,k)
+          if (pert_radtend) then
+! clear sky
+            dtdtnp(i,k) = dtdtnp(i,k) + swhc(i,k)*xmu(i) + hlwc(i,k)
+          else
+! all sky
+            dtdtnp(i,k) = dtdtnp(i,k) + swh(i,k)*xmu(i) + hlw(i,k)
+          endif
         enddo
       enddo
 !
