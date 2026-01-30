@@ -778,6 +778,7 @@ module GFS_typedefs
 
     real(kind=kind_phys) :: rbcr            !< Critical Richardson Number in the PBL scheme
     logical              :: mix_precip      !< Whether to apply PBL mixing to precipitating hydrometeors
+    logical              :: cap_evap        !< Whether to apply limiter to evaperation from latent heat flux
 
     !--- Rayleigh friction
     real(kind=kind_phys) :: prslrd0         !< pressure level from which Rayleigh Damping is applied
@@ -2559,6 +2560,7 @@ end subroutine overrides_create
                                                                       !< from cloud edges for RAS
     real(kind=kind_phys) :: rbcr           = 0.25                     !< Critical Richardson Number in PBL scheme
     logical              :: mix_precip     = .true.                   !< Whether to apply PBL mixing to precipitating hydrometeors
+    logical              :: cap_evap       = .true.                   !< Whether to apply limiter to evaperation from latent heat flux
 
     !--- Rayleigh friction
     real(kind=kind_phys) :: prslrd0        = 0.0d0           !< pressure level from which Rayleigh Damping is applied
@@ -2742,7 +2744,7 @@ end subroutine overrides_create
                                dlqf,rbcr,mix_precip,orogwd,myj_pbl,ysupbl,satmedmf,         &
                                cap_k0_land,do_dk_hb19,use_lup_only,use_l1_sfc,              &
                                use_tke_pbl,use_shear_pbl,use_tke_conv,use_shear_conv,       &
-                               limit_shal_conv,cloud_gfdl,gwd_p_crit,                       &
+                               limit_shal_conv,cloud_gfdl,gwd_p_crit,cap_evap,              &
                           !--- Rayleigh friction
                                prslrd0, ral_ts,                                             &
                           !--- mass flux deep convection
@@ -3067,6 +3069,7 @@ end subroutine overrides_create
     Model%dlqf             = dlqf
     Model%rbcr             = rbcr
     Model%mix_precip       = mix_precip
+    Model%cap_evap         = cap_evap
 
     !--- Rayleigh friction
     Model%prslrd0          = prslrd0
@@ -3834,6 +3837,7 @@ end subroutine overrides_create
       print *, ' dlqf              : ', Model%dlqf
       print *, ' seed0             : ', Model%seed0
       print *, ' rbcr              : ', Model%rbcr
+      print *, ' cap_evap          : ', Model%cap_evap
       print *, ' '
       print *, 'Rayleigh friction'
       print *, ' prslrd0           : ', Model%prslrd0
