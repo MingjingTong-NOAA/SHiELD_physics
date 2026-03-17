@@ -3308,8 +3308,8 @@ end subroutine overrides_create
     Model%phour            = rinc(4)/con_hr
     Model%fhour            = (rinc(4) + Model%dtp)/con_hr
     Model%zhour            = mod(Model%phour,Model%fhzero)
-    Model%kdt              = 0
-    Model%kdt_prev         = 0
+    Model%kdt              = nint(Model%fhour*con_hr/Model%dtp)
+    Model%kdt_prev         = Model%kdt-1
     Model%first_time_step  = .true.
     Model%restart          = restart
     Model%jdat(1:8)        = jdat(1:8)
