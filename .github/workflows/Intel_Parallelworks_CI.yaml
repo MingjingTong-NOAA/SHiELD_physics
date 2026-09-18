@@ -36,10 +36,6 @@ jobs:
     # have 17 runners configured.
 #    - run: salloc --partition=p2 -N 46 -J $GITHUB_SHA sleep 20m &
     - run: /contrib/fv3/SHiELD_physics_CI/checkout.sh -b $GITHUB_REF -h $GITHUB_SHA
-    - run: |
-        cd /contrib/fv3/2023.2.0/SHiELD_physics/$GITHUB_REF/$GITHUB_SHA/SHiELD_SRC/atmos_drivers
-        git fetch origin pull/70/head:pr-70
-        git checkout pr-70
     
   build:
     if: github.repository == 'NOAA-GFDL/SHiELD_physics'
